@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+  <script src="js/vue.min.js"></script>
+  <script src="js/jquery.min.js"></script>
+  <script src="js/layer/layer.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/animate.css@3.5.2/animate.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style type="text/css">
+    .main{
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      background: #c4dbdb;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      overflow: hidden;
+    }
+    .con{
+      padding: 10px;
+    }
+    .boxImg{
+      position: fixed;
+      height: 75%;
+      top: 58px;
+      left: 10px;
+      right: 10px;
+    }
+    .boxImg .oneImg{
+      width: 100%;
+      height: 100%;
+    }
+    .bom{
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-size: 14px;
+      color: #666;
+      margin-top: 5%;
+    }
+    .bom img{
+      width: 60px;
+    }
+    .imgItem{
+      position: absolute;
+      top: 30%;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+<div class="main" id="rrapp">
+  <div class="con">
+    <div class="boxImg">
+      <img :src="modulData.image_01" class="animated fadeInDown oneImg">
+      <div class="bom">
+        <img src="image/masonry.png">
+        <span style="margin-top: 5px;">-SWEET DAY-</span>
+      </div>
+    </div>
+  </div>
+  <div class="fixed" v-if="seetingBtn">
+    <img src="image/seeting.png" class="imgIcon" width="15%" @click="topUpTree();">
+  </div>
+
+  <!-- 弹窗-编辑信息 -->
+  <div id="topUpTree" class="topUpTree">
+    <div>
+      <input id="image_01" @change="update" type="file" style="display: none"/>
+      <img v-if="image_01" :src="image_01" width="100%" height="300" @click="imgClick('image_01')">
+      <div v-else class="upload" @click="imgClick('image_01')"><img src="image/add.png" width="50"></div>
+    </div>
+    <div class="btnBox">
+      <span class="btn" @click="save">确定</span>
+      <span class="btn cancel" @click="cancel">取消</span>
+    </div>
+  </div>
+</div>
+</div>
+<script>
+  //模板编号
+  let modul = "modul_09";
+  //默认图片路径
+  let defoutImage = "image/image.jpg";
+  new Vue({
+    el:'#rrapp',
+    data:{
+      seetingBtn: true,
+      modulData:{
+        image_01:defoutImage
+      },
+      clickFile: '',
+      image_01: '',
+      layer: ''
+    },
+    methods: {
+      topUpTree () {
+        window.parent.postMessage('isSet', true);
+        this.layer = layer.open({
+          type: 1,
+          skin: 'layui-layer-molv',
+          title: false,
+          area: ['100%', '100%'],
+          shade: 0,
+          shadeClose: false,
+          content: jQuery("#topUpTree")
+        });
+      },
+      imgClick (file) {
+        this.clickFile = file
+        let fileSelect = document.getElementById(file)
+        fileSelect.click()
+      },
+      update () {
+        let fileName = ''
+        let fileSize = ''
+        let fileType = ''
+        let inputDOM = document.getElementById(this.clickFile)
+        // 通过DOM取文件数据
+        let file = inputDOM.files[0]
+        getFileBase64(file, e => {
+          this[this.clickFile] = e
+          this.modulData[this.clickFile] = e
+        })
+        if (inputDOM.files[0] === undefined) {
+          fileName = ''
+          fileSize = ''
+          fileType = ''
+        } else {
+          fileName = file.name
+          if (file.size / 1024 < 1000) {
+            fileSize = (file.size / 1024).toFixed(2) + 'kb'
+          } else if (file.size / 1024 > 1000) {
+            fileSize = ((file.size / 1024) / 1024).toFixed(2) + 'MB'
+          }
+          fileType = file.type
+        }
+      }
+    }
+  });
+  function getFileBase64 (file, callback) {
+    let reader = new FileReader()
+    reader.readAsDataURL(file) // 读出 base64
+    reader.onloadend = function () {
+      // 图片的 base64 格式, 可以直接当成 img 的 src 属性值
+      let dataURL = reader.result
+      if (callback != null && typeof callback === 'function') {
+        callback(dataURL)
+      } else {
+        callback()
+      }
+    }
+  }
+</script>
+</body>
+</html>

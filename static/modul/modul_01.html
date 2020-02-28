@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+  <script src="js/vue.min.js"></script>
+  <script src="js/jquery.min.js"></script>
+  <script src="js/layer/layer.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/animate.css@3.5.2/animate.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style type="text/css">
+    .img{
+	  position: absolute;
+	  left: 0;
+	  top: 0;
+	  bottom: 0;
+	  width: 100%;
+	  height: 100%;
+    }
+    .box{
+      background: rgba(255, 255, 255, 0.8);
+      position: absolute;
+      width: 70%;
+      bottom: 10%;
+      left: 15%;
+    }
+    .box-border {
+      border: 2px solid #333;
+    }
+    .name{
+      margin: 10px 0;
+    }
+    .date{
+      border-top: 1px solid #333;
+      border-bottom: 1px solid #333;
+      padding: 3px 0;
+    }
+    .address{
+      padding: 5px 0;
+    }
+
+
+  </style>
+</head>
+<body>
+<div class="main" id="rrapp" v-cloak>
+  <img :src="modulData.image_01" id="img" class="img animated fadeIn">
+  <div class="box">
+    <div class="padding-10">
+      <div class="box-border">
+        <div class="padding-l-r-30 text-center"> 
+          <h3 class="name">{{modulData.text_01}}</h3>
+          <div class="date">{{modulData.text_02}}</div>
+          <div class="address">{{modulData.text_03}}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="fixed" v-if="seetingBtn">
+    <img src="image/seeting.png" class="imgIcon" width="15%" @click="topUpTree();">
+  </div>
+  
+  <!-- 弹窗-编辑信息 -->
+  <div id="topUpTree" class="topUpTree">
+	  <div class="source">
+		  <form class="form">
+			  <div class="form-item">
+				  <label class="form-item-label">信息一</label>
+				  <div class="form-item-content">
+					  <div class="form-item-input">
+						  <input type="text" class="input-inner" v-model="modulData.text_01">
+					  </div>
+				  </div>
+			  </div>
+			  <div class="form-item">
+				  <label class="form-item-label">信息二</label>
+				  <div class="form-item-content">
+					  <div class="form-item-input">
+						  <input type="text" class="input-inner" v-model="modulData.text_02">
+					  </div>
+				  </div>
+			  </div>
+			  <div class="form-item">
+				  <label class="form-item-label">信息三</label>
+				  <div class="form-item-content">
+					  <div class="form-item-input">
+						  <input type="text" class="input-inner" v-model="modulData.text_03">
+					  </div>
+				  </div>
+			  </div>
+		  </form>
+	  </div>
+	  <div>
+		  <input id="image_01" @change="update" type="file" style="display: none"/>
+		  <img v-if="image_01" :src="image_01" width="100%" height="300" @click="imgClick('image_01')">
+		  <div v-else class="upload" @click="imgClick('image_01')"><img src="image/add.png" width="50"></div>
+	  </div>
+
+	  <div class="btnBox">
+		  <span class="btn" @click="save">确定</span>
+		  <span class="btn cancel" @click="cancel">取消</span>
+	  </div>
+		
+  </div>
+  
+</div>
+<script>
+//模板编号
+let modul = "modul_01";
+//默认图片路径
+let defoutImage = "image/image.jpg";
+//加载vue
+let vm = new Vue({
+	el:'#rrapp',
+	data:{
+		seetingBtn: true,
+		modulData:{
+			image_01: defoutImage,
+			text_01: "信息一",
+			text_02: "信息二",
+			text_03: "信息三"
+		},
+		image_01: '',
+		layer: ''
+	},
+	created () { },
+	methods: {
+		topUpTree(){
+      window.parent.postMessage('showFalse', '*')
+			this.layer = layer.open({
+				type: 1,
+				skin: 'layui-layer-molv',
+				title: false,
+				area: ['100%', '100%'],
+				shade: 0,
+				shadeClose: false,
+				content: jQuery("#topUpTree")
+			});
+		},
+		save () {
+      window.parent.postMessage('showTrue', '*')
+			layer.close(this.layer)
+		},
+		cancel () {
+      window.parent.postMessage('showTrue', '*')
+			layer.close(this.layer)
+		},
+		imgClick () {
+			let fileSelect = document.getElementById('image_01')
+			fileSelect.click()
+		},
+		update () {
+			let fileName = ''
+			let fileSize = ''
+			let fileType = ''
+			let inputDOM = document.getElementById('image_01')
+			// 通过DOM取文件数据
+			let file = inputDOM.files[0]
+			// let imgData = this.type
+			getFileBase64(file, e => {
+				this.modulData.image_01 = e
+				this.image_01 = e
+			})
+			if (inputDOM.files[0] === undefined) {
+				fileName = ''
+				fileSize = ''
+				fileType = ''
+			} else {
+				fileName = file.name
+				if (file.size / 1024 < 1000) {
+					fileSize = (file.size / 1024).toFixed(2) + 'kb'
+				} else if (file.size / 1024 > 1000) {
+					fileSize = ((file.size / 1024) / 1024).toFixed(2) + 'MB'
+				}
+				fileType = file.type
+			}
+		}
+	}
+});
+
+  function getFileBase64 (file, callback) {
+    let reader = new FileReader()
+    reader.readAsDataURL(file) // 读出 base64
+    reader.onloadend = function () {
+      // 图片的 base64 格式, 可以直接当成 img 的 src 属性值
+      let dataURL = reader.result
+      if (callback != null && typeof callback === 'function') {
+        callback(dataURL)
+      } else {
+        callback()
+      }
+    }
+  }
+</script>
+</body>
+</html>
