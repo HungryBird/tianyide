@@ -50,9 +50,10 @@
             <span class="color-d81e06 font18" style="color: #877978;font-size: 1rem;" v-if="order.price < historyPrice">￥{{historyPrice}} &nbsp;&nbsp;</span> -->
             <span class="color-999 font14">现价:</span>
             <span class="color-d81e06 font18">￥{{order.price}}</span>
-            <span class="color-999 font14">已支付:</span>
+            <span class="color-999 font14">定金:</span>
             <span class="color-d81e06 font18">￥{{order.deposit}}</span>
-            <span class="color-999 font14">未支付:</span>
+            <span>&nbsp;{{ order.depStu }}</span>
+            <span class="color-999 font14">尾款:</span>
             <span class="color-d81e06 font18">￥{{order.balancePayment}}</span>
           </div>
           <!-- <button>支付定金</button> -->
@@ -151,9 +152,11 @@
       },
       getServiceInfo () {
         const obj = {id: this.$route.query.id};
+        const self = this;
         api.sendReq('/customer/user/service_orders_id', obj).then(data => {
           if (data) {
             this.order = data.order
+            alert(JSON.stringify(this.order));
             this.salesman = data.salesman
             this.bottom = data.bottom
             /* 服务信息 */
