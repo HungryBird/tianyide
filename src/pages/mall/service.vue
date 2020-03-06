@@ -45,7 +45,7 @@
           <span class="color-333 font14">小计￥</span>
           <span class="color-d81e06 font20">{{parseFloat(price).toFixed(2)}}</span>
         </div>
-        <div class="width-50 color-fff text-center" @click="showHideOnBlur = !showHideOnBlur">预约服务</div>
+        <div class="width-50 color-fff text-center" @click="checkLogin">预约服务</div>
       </div>
     </div>
 
@@ -66,6 +66,8 @@
   import api from '../common/api.js'
   import { CellFormPreview, Group, Cell, XDialog, XInput, XButton } from 'vux'
   import { VoBasic } from 'vue-orgchart'
+  import _myThis from '@/main.js'
+
   export default {
     data () {
       return {
@@ -104,6 +106,26 @@
       })
     },
     methods: {
+      checkLogin() {
+        const isLogin = localStorage.setItem('isLogin');
+        if(!isLogin) {
+          _myThis.$vux.confirm.show({
+            title: '提示',
+            content: '登录过期，请重新登录',
+            onCancel () {
+              _myThis.$vux.confirm.hide()
+            },
+            onConfirm () {
+              localStorage.setItem('isLogin', 'true')
+              let url = window.location.href
+              window.location.href = 'http://tianyinde.com/wechat/wechat_login?callbackUrl=' + encodeURIComponent(url)
+            }
+          })
+        }
+        else {
+          this.showHideOnBlur = true;
+        }
+      },
       menuIdFlag (id) {
         if (document.getElementById(id).style.display === 'none') {
           document.getElementById(id).style = 'display: block;'

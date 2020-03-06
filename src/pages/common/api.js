@@ -6,7 +6,7 @@ import { dateFormat } from 'vux'
 let api = {
   // basePath: 'http://192.168.1.13:8080/heaven',
   basePath: 'http://tianyinde.com',
-  // basePath: 'http://192.168.1.188:8080',
+  // basePath: 'http://192.168.31.116/heaven',
   sendReq (url, params, methods = 'GET', json, load = true) {
     try {
       if (load) {

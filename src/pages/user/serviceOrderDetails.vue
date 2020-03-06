@@ -51,10 +51,10 @@
             <span class="color-999 font14">现价:</span>
             <span class="color-d81e06 font18">￥{{order.price}}</span>
             <span class="color-999 font14">定金:</span>
-            <span class="color-d81e06 font18">￥{{order.deposit}}</span>
-            <span>&nbsp;{{ order.depStu }}</span>
+            <span class="color-d81e06 font18">￥{{deposit}}</span>
+            <span>&nbsp;{{ depStu }}</span>
             <span class="color-999 font14">尾款:</span>
-            <span class="color-d81e06 font18">￥{{order.balancePayment}}</span>
+            <span class="color-d81e06 font18">￥{{balancePayment}}</span>
           </div>
           <!-- <button>支付定金</button> -->
           <div class="row-end color-999 font14">
@@ -128,6 +128,9 @@
         service: [],
         bottom: {},
         historyPrice: 0,
+        deposit: '',
+        balancePayment: '',
+        depStu: '',
         pulldownConfig: {
           content: '下拉刷新',
           height: 40,
@@ -155,10 +158,12 @@
         const self = this;
         api.sendReq('/customer/user/service_orders_id', obj).then(data => {
           if (data) {
-            this.order = data.order
-            alert(JSON.stringify(this.order));
-            this.salesman = data.salesman
-            this.bottom = data.bottom
+            this.balancePayment = data.balancePayment;
+            this.deposit = data.deposit;
+            this.depStu = data.depStu;
+            this.order = data.order;
+            this.salesman = data.salesman;
+            this.bottom = data.bottom;
             /* 服务信息 */
             let newData = JSON.parse(JSON.stringify(data.service))
             if (this.order.serviceStatus === 1) {
@@ -199,7 +204,7 @@
             //   })
             // }
             // this.service = newData
-            // this.$refs.scroller.donePulldown()
+            this.$refs.scroller.donePulldown();
             // this.scrollerStatus.pullupStatus = 'default'
           }
         })
@@ -254,6 +259,10 @@
         api.sendReq(`/customer/user/ok_service_order?serviceId=${this.$route.query.id}`, null, 'POST').then(data => {
           if (data) {
             this.$vux.toast.text('服务已确认')
+            const self = this;
+            setTimeout(() => {
+              self.$router.go(-1);
+            }, 500)
           }
         })
       },
